@@ -1,6 +1,5 @@
-package com.example.simuladoragogo // pacote do app
+package com.example.simuladoragogo
 
-// Importa as bibliotecas necessárias
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Bundle
@@ -14,10 +13,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 // Classe principal da tela
@@ -35,14 +42,14 @@ class MainActivity : ComponentActivity() {
 
         // Configura os atributos de áudio
         val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA) // uso de mídia
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION) // efeito curto
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
 
-        // Cria o SoundPool (permite vários sons ao mesmo tempo)
+        // Cria o SoundPool
         soundPool = SoundPool.Builder()
-            .setMaxStreams(4) // até 4 sons simultâneos
-            .setAudioAttributes(audioAttributes) // usa a configuração acima
+            .setMaxStreams(4)
+            .setAudioAttributes(audioAttributes)
             .build()
 
         // Carrega os sons da pasta res/raw
@@ -53,11 +60,9 @@ class MainActivity : ComponentActivity() {
 
         // Define a interface da tela
         setContent {
-            // Estados: variáveis que mudam a UI
-            var usarImagem by remember { mutableStateOf(true) } // controla imagem/botões
-            var darkMode by remember { mutableStateOf(false) }  // controla tema claro/escuro
+            var usarImagem by remember { mutableStateOf(true) }
+            var darkMode by remember { mutableStateOf(false) }
 
-            // Aplica o tema (claro ou escuro)
             MaterialTheme(colorScheme = if (darkMode) darkColorScheme() else lightColorScheme()) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
@@ -70,16 +75,16 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween, // um à esquerda e outro à direita
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Toggle da esquerda (imagem ↔ botões)
                             Switch(
-                                checked = usarImagem, // valor atual
-                                onCheckedChange = { usarImagem = it }, // troca valor quando clicado
+                                checked = usarImagem,
+                                onCheckedChange = { usarImagem = it },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,   // cor ligada
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.secondary // cor desligada
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.secondary
                                 )
                             )
 
@@ -96,7 +101,6 @@ class MainActivity : ComponentActivity() {
 
                         // Decide qual tela mostrar
                         if (usarImagem) {
-                            // Mostra imagem do agogô
                             TelaComImagem(
                                 onBoca1 = { tocar(sound1) },
                                 onBoca2 = { tocar(sound2) },
@@ -104,7 +108,6 @@ class MainActivity : ComponentActivity() {
                                 onBoca4 = { tocar(sound4) }
                             )
                         } else {
-                            // Mostra botões
                             TelaComBotoes(
                                 onBoca1 = { tocar(sound1) },
                                 onBoca2 = { tocar(sound2) },
@@ -118,13 +121,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Função que toca o som
     private fun tocar(soundId: Int) {
-        // play(id, volumeEsq, volumeDir, prioridade, loop, velocidade)
         soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
     }
 
-    // Quando a tela fecha, libera os sons da memória
     override fun onDestroy() {
         super.onDestroy()
         soundPool.release()
@@ -134,12 +134,8 @@ class MainActivity : ComponentActivity() {
 // --- Tela com BOTÕES ---
 @Composable
 fun TelaComBotoes(
-    onBoca1: () -> Unit,
-    onBoca2: () -> Unit,
-    onBoca3: () -> Unit,
-    onBoca4: () -> Unit
+    onBoca1: () -> Unit, onBoca2: () -> Unit, onBoca3: () -> Unit, onBoca4: () -> Unit
 ) {
-    // Container centralizado
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,46 +143,57 @@ fun TelaComBotoes(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Primeira linha com dois botões
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(
-                onClick = onBoca4,
-                modifier = Modifier.size(180.dp)
-            ) { Text("4") }
-
-            Button(
-                onClick = onBoca3,
-                modifier = Modifier.size(180.dp)
-            ) { Text("3") }
-
-            Button(
-                onClick = onBoca2,
-                modifier = Modifier.size(180.dp)
-            ) { Text("2") }
-
-            Button(
-                onClick = onBoca1,
-                modifier = Modifier.size(180.dp) // quadrado
-            ) { Text("1") }
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Button(onClick = onBoca4, modifier = Modifier.size(180.dp)) { Text("4") }
+            Button(onClick = onBoca3, modifier = Modifier.size(180.dp)) { Text("3") }
+            Button(onClick = onBoca2, modifier = Modifier.size(180.dp)) { Text("2") }
+            Button(onClick = onBoca1, modifier = Modifier.size(180.dp)) { Text("1") }
         }
-
-        Spacer(modifier = Modifier.height(16.dp)) // espaçamento entre linhas
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 
-// --- Tela com IMAGEM ---
+// --- NOVA SHAPE CONFIGURÁVEL ---
+/**
+ * Cria uma Shape de trapézio onde você pode configurar as proporções.
+ * @param topWidthRatio Proporção da largura do topo (ex: 0.8f significa 80% da largura total).
+ * @param bottomWidthRatio Proporção da largura da base (ex: 1.0f significa 100% da largura total).
+ */
+class ConfigurableTrapezoidShape(
+    private val topWidthRatio: Float,
+    private val bottomWidthRatio: Float
+) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val topWidth = size.width * topWidthRatio
+        val bottomWidth = size.width * bottomWidthRatio
+
+        // Calcula os pontos X para centralizar as linhas
+        val topStartX = (size.width - topWidth) / 2
+        val bottomStartX = (size.width - bottomWidth) / 2
+
+        val path = Path().apply {
+            moveTo(topStartX, 0f) // Canto superior esquerdo
+            lineTo(topStartX + topWidth, 0f) // Canto superior direito
+            lineTo(bottomStartX + bottomWidth, size.height) // Canto inferior direito
+            lineTo(bottomStartX, size.height) // Canto inferior esquerdo
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
+
+
+// --- TELA COM IMAGEM (VERSÃO COM SHAPES EDITÁVEIS) ---
+// --- TELA COM IMAGEM (VERSÃO COM PREVISÕES AJUSTADAS) ---
 @Composable
 fun TelaComImagem(
-    onBoca1: () -> Unit,
-    onBoca2: () -> Unit,
-    onBoca3: () -> Unit,
-    onBoca4: () -> Unit
+    onBoca1: () -> Unit, onBoca2: () -> Unit, onBoca3: () -> Unit, onBoca4: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Imagem do agogô
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center // Mantém o centro como referência
+    ) {
         Image(
             painter = painterResource(id = R.drawable.agogonobg),
             contentDescription = "Agogô",
@@ -194,48 +201,51 @@ fun TelaComImagem(
             contentScale = ContentScale.FillBounds
         )
 
-        // Boca 1 (amarela) – menor, direita
+        // Boca 4 (verde) – PREVISÃO
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(x = 275.dp, y = 190.dp)
-                .size(100.dp)
-                .background(Color.Yellow.copy(alpha = 0.5f))
-                .clickable { onBoca1() }
+                .offset(x = (-210).dp, y = (50).dp)
+                .rotate(120f)
+                .size(width = 190.dp, height = 350.dp)
+                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .background(Color.Green.copy(alpha = 0.4f))
+                .clickable { onBoca4() }
         )
 
-        // Boca 2 (azul)
+        // Boca 3 (vermelha) – PREVISÃO
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(x = 150.dp, y = 85.dp)
-                .size(120.dp)
-                .background(Color.Blue.copy(alpha = 0.5f))
-                .clickable { onBoca2() }
-        )
-
-        // Boca 3 (vermelha)
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(x = -40.dp, y = 55.dp)
-                .size(120.dp)
-                .background(Color.Red.copy(alpha = 0.5f))
+                .offset(x = (-40).dp, y = (-30).dp)
+                .rotate(157f)
+                .size(width = 230.dp, height = 280.dp)
+                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .background(Color.Red.copy(alpha = 0.4f))
                 .clickable { onBoca3() }
         )
 
-        // Boca 4 (verde) – maior, esquerda
+        // Boca 2 (azul) – PREVISÃO
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(x = -255.dp, y = 100.dp)
-                .size(120.dp)
-                .background(Color.Green.copy(alpha = 0.5f))
-                .clickable { onBoca4() }
+                .offset(x = (160).dp, y = (-10).dp)
+                .rotate(-155f)
+                .size(width = 190.dp, height = 260.dp)
+                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .background(Color.Blue.copy(alpha = 0.4f))
+                .clickable { onBoca2() }
+        )
+
+        // Boca 1 (amarela) – SEUS VALORES IDEAIS
+        Box(
+            modifier = Modifier
+                .offset(x = 270.dp, y = (95).dp)
+                .rotate(-118f)
+                .size(width = 140.dp, height = 260.dp)
+                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .background(Color.Yellow.copy(alpha = 0.4f))
+                .clickable { onBoca1() }
         )
     }
 }
-
 
 
 // Preview (só aparece no Android Studio, não no app real)
