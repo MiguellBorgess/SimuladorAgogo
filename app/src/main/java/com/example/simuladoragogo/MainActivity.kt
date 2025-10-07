@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 // Classe principal da tela
 class MainActivity : ComponentActivity() {
 
+    // ... (O resto da sua classe MainActivity continua igual) ...
     // Variáveis do reprodutor de som
     private lateinit var soundPool: SoundPool
     private var sound1: Int = 0
@@ -131,7 +132,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// --- Tela com BOTÕES ---
+
+// --- Tela com BOTÕES (continua igual) ---
 @Composable
 fun TelaComBotoes(
     onBoca1: () -> Unit, onBoca2: () -> Unit, onBoca3: () -> Unit, onBoca4: () -> Unit
@@ -154,29 +156,23 @@ fun TelaComBotoes(
 }
 
 
-// --- NOVA SHAPE CONFIGURÁVEL ---
+// --- NOVA SHAPE COM 4 PONTOS CONFIGURÁVEIS ---
 /**
- * Cria uma Shape de trapézio onde você pode configurar as proporções.
- * @param topWidthRatio Proporção da largura do topo (ex: 0.8f significa 80% da largura total).
- * @param bottomWidthRatio Proporção da largura da base (ex: 1.0f significa 100% da largura total).
+ * Cria uma Shape de trapézio definindo a posição horizontal de cada um dos 4 cantos.
+ * Os valores de ratio são de 0.0 (extrema esquerda) a 1.0 (extrema direita).
  */
-class ConfigurableTrapezoidShape(
-    private val topWidthRatio: Float,
-    private val bottomWidthRatio: Float
+class FourPointTrapezoidShape(
+    private val topLeftXRatio: Float,
+    private val topRightXRatio: Float,
+    private val bottomLeftXRatio: Float,
+    private val bottomRightXRatio: Float
 ) : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-        val topWidth = size.width * topWidthRatio
-        val bottomWidth = size.width * bottomWidthRatio
-
-        // Calcula os pontos X para centralizar as linhas
-        val topStartX = (size.width - topWidth) / 2
-        val bottomStartX = (size.width - bottomWidth) / 2
-
         val path = Path().apply {
-            moveTo(topStartX, 0f) // Canto superior esquerdo
-            lineTo(topStartX + topWidth, 0f) // Canto superior direito
-            lineTo(bottomStartX + bottomWidth, size.height) // Canto inferior direito
-            lineTo(bottomStartX, size.height) // Canto inferior esquerdo
+            moveTo(size.width * topLeftXRatio, 0f) // Canto superior esquerdo
+            lineTo(size.width * topRightXRatio, 0f) // Canto superior direito
+            lineTo(size.width * bottomRightXRatio, size.height) // Canto inferior direito
+            lineTo(size.width * bottomLeftXRatio, size.height) // Canto inferior esquerdo
             close()
         }
         return Outline.Generic(path)
@@ -184,15 +180,14 @@ class ConfigurableTrapezoidShape(
 }
 
 
-// --- TELA COM IMAGEM (VERSÃO COM SHAPES EDITÁVEIS) ---
-// --- TELA COM IMAGEM (VERSÃO COM PREVISÕES AJUSTADAS) ---
+// --- TELA COM IMAGEM ATUALIZADA ---
 @Composable
 fun TelaComImagem(
     onBoca1: () -> Unit, onBoca2: () -> Unit, onBoca3: () -> Unit, onBoca4: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center // Mantém o centro como referência
+        contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.agogonobg),
@@ -201,46 +196,66 @@ fun TelaComImagem(
             contentScale = ContentScale.FillBounds
         )
 
-        // Boca 4 (verde) – PREVISÃO
+        // Boca 4 (verde)
         Box(
             modifier = Modifier
                 .offset(x = (-210).dp, y = (50).dp)
                 .rotate(120f)
                 .size(width = 190.dp, height = 350.dp)
-                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .clip(FourPointTrapezoidShape(
+                    topLeftXRatio = 0.35f,   // ⬅️ Edite aqui
+                    topRightXRatio = 0.65f,  // ⬅️ Edite aqui
+                    bottomLeftXRatio = 0.0f, // ⬅️ Edite aqui
+                    bottomRightXRatio = 1.0f // ⬅️ Edite aqui
+                ))
                 .background(Color.Green.copy(alpha = 0.4f))
                 .clickable { onBoca4() }
         )
 
-        // Boca 3 (vermelha) – PREVISÃO
+        // Boca 3 (vermelha)
         Box(
             modifier = Modifier
                 .offset(x = (-40).dp, y = (-30).dp)
                 .rotate(157f)
                 .size(width = 230.dp, height = 280.dp)
-                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .clip(FourPointTrapezoidShape(
+                    topLeftXRatio = 0.35f,
+                    topRightXRatio = 0.65f,
+                    bottomLeftXRatio = 0.0f,
+                    bottomRightXRatio = 1.0f
+                ))
                 .background(Color.Red.copy(alpha = 0.4f))
                 .clickable { onBoca3() }
         )
 
-        // Boca 2 (azul) – PREVISÃO
+        // Boca 2 (azul)
         Box(
             modifier = Modifier
                 .offset(x = (160).dp, y = (-10).dp)
                 .rotate(-155f)
                 .size(width = 190.dp, height = 260.dp)
-                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .clip(FourPointTrapezoidShape(
+                    topLeftXRatio = 0.35f,
+                    topRightXRatio = 0.65f,
+                    bottomLeftXRatio = 0.0f,
+                    bottomRightXRatio = 1.0f
+                ))
                 .background(Color.Blue.copy(alpha = 0.4f))
                 .clickable { onBoca2() }
         )
 
-        // Boca 1 (amarela) – SEUS VALORES IDEAIS
+        // Boca 1 (amarela)
         Box(
             modifier = Modifier
                 .offset(x = 270.dp, y = (95).dp)
                 .rotate(-118f)
                 .size(width = 140.dp, height = 260.dp)
-                .clip(ConfigurableTrapezoidShape(topWidthRatio = 0.3f, bottomWidthRatio = 1.0f))
+                .clip(FourPointTrapezoidShape(
+                    topLeftXRatio = 0.35f,   // (1.0 - 0.3) / 2 = 0.35
+                    topRightXRatio = 0.65f,  // 0.35 + 0.3 = 0.65
+                    bottomLeftXRatio = 0.0f,
+                    bottomRightXRatio = 1.0f
+                ))
                 .background(Color.Yellow.copy(alpha = 0.4f))
                 .clickable { onBoca1() }
         )
@@ -248,7 +263,7 @@ fun TelaComImagem(
 }
 
 
-// Preview (só aparece no Android Studio, não no app real)
+// --- Preview (continua igual) ---
 @Preview(showBackground = true)
 @Composable
 fun TelaPreview() {
