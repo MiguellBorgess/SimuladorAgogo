@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.simuladoragogo.R
 import com.example.simuladoragogo.ui.shape.FourPointTrapezoidShape
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 
 // --- TELA COM BOTÕES ---
 // A anotação `@Composable` marca esta função como um componente de UI do Jetpack Compose.
@@ -55,45 +57,44 @@ fun TelaComBotoes(
 }
 
 // --- TELA COM IMAGEM ATUALIZADA ---
+
+
+// --- TELA COM IMAGEM ATUALIZADA (COM TOQUE IMEDIATO) ---
 @Composable
 fun TelaComImagem(
     onBoca1: () -> Unit, onBoca2: () -> Unit, onBoca3: () -> Unit, onBoca4: () -> Unit
 ) {
-    // `Box` é um container que permite empilhar elementos uns sobre os outros.
-    // É perfeito para colocar as áreas de clique sobre uma imagem de fundo.
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center // Define o ponto (0,0) como o centro, facilitando o `offset`.
+        contentAlignment = Alignment.Center
     ) {
-        // A imagem de fundo do agogô.
         Image(
             painter = painterResource(id = R.drawable.agogonobg),
-            contentDescription = "Agogô", // Texto para acessibilidade (leitores de tela).
+            contentDescription = "Agogô",
             modifier = Modifier.fillMaxSize(),
-            // Estica a imagem para preencher toda a tela, mesmo que distorça um pouco.
             contentScale = ContentScale.FillBounds
         )
 
-        // --- ÁREA DE CLIQUE PARA A BOCA 4 (VERDE) ---
-        // Cada boca é um `Box` invisível que será cortado no formato de trapézio.
+        // Boca 4 (verde)
         Box(
-            // `Modifier` é uma cadeia de "instruções" que modificam o `Box`. A ordem importa!
             modifier = Modifier
-                .offset(x = (-210).dp, y = (50).dp) // 1. Desloca o Box a partir do centro.
-                .rotate(120f)                       // 2. Rotaciona o Box.
-                .size(width = 190.dp, height = 350.dp) // 3. Define o tamanho da "tela de pintura" do Box.
-                .clip(FourPointTrapezoidShape(      // 4. CORTA o Box usando nossa forma customizada.
+                .offset(x = (-210).dp, y = (50).dp)
+                .rotate(120f)
+                .size(width = 190.dp, height = 350.dp)
+                .clip(FourPointTrapezoidShape(
                     topLeftXRatio = 0.35f,
                     topRightXRatio = 0.65f,
                     bottomLeftXRatio = 0.0f,
                     bottomRightXRatio = 1.0f
                 ))
-                .background(Color.Green.copy(alpha = 0.4f)) // 5. Pinta o fundo da área visível (o trapézio).
-                .clickable { onBoca4() }                   // 6. Faz com que a área visível seja clicável.
+//                .background(Color.Green.copy(alpha = 0.4f))
+                .pointerInput(Unit) {
+                    detectTapGestures(onPress = {
+                        onBoca4()
+                        tryAwaitRelease()
+                    })
+                }
         )
-
-        // As outras bocas seguem exatamente a mesma lógica, apenas com valores diferentes
-        // de posição, rotação, tamanho e, se necessário, formato do trapézio.
 
         // Boca 3 (vermelha)
         Box(
@@ -107,8 +108,13 @@ fun TelaComImagem(
                     bottomLeftXRatio = 0.0f,
                     bottomRightXRatio = 1.0f
                 ))
-                .background(Color.Red.copy(alpha = 0.4f))
-                .clickable { onBoca3() }
+//                .background(Color.Red.copy(alpha = 0.4f))
+                .pointerInput(Unit) {
+                    detectTapGestures(onPress = {
+                        onBoca3()
+                        tryAwaitRelease()
+                    })
+                }
         )
 
         // Boca 2 (azul)
@@ -123,8 +129,13 @@ fun TelaComImagem(
                     bottomLeftXRatio = 0.0f,
                     bottomRightXRatio = 1.0f
                 ))
-                .background(Color.Blue.copy(alpha = 0.4f))
-                .clickable { onBoca2() }
+//                .background(Color.Blue.copy(alpha = 0.4f))
+                .pointerInput(Unit) {
+                    detectTapGestures(onPress = {
+                        onBoca2()
+                        tryAwaitRelease()
+                    })
+                }
         )
 
         // Boca 1 (amarela)
@@ -139,8 +150,13 @@ fun TelaComImagem(
                     bottomLeftXRatio = 0.0f,
                     bottomRightXRatio = 1.0f
                 ))
-                .background(Color.Yellow.copy(alpha = 0.4f))
-                .clickable { onBoca1() }
+//                .background(Color.Yellow.copy(alpha = 0.4f))
+                .pointerInput(Unit) {
+                    detectTapGestures(onPress = {
+                        onBoca1()
+                        tryAwaitRelease()
+                    })
+                }
         )
     }
 }

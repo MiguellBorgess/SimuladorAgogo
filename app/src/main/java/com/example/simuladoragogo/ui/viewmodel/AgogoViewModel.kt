@@ -40,7 +40,7 @@ class AgogoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         super.onCleared()
         soundPool.release()
     }
